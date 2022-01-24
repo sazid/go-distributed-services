@@ -26,6 +26,10 @@ func RegisterService(r Registration) error {
 	return nil
 }
 
+// ShutdownService deregisters a service with the given url from the registry.
+// Note that we're not taking the service name here and instead using the
+// service url because there can be possibly more than one service running with
+// the same service name (they're the same service type).
 func ShutdownService(serviceURL string) error {
 	req, err := http.NewRequest(
 		http.MethodDelete,
