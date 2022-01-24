@@ -5,16 +5,36 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"sazid.github.io/distributed_systems/app/registry"
 )
 
-func Start(ctx context.Context, serviceName, host, port string, registerHandlersFunc func()) (context.Context, error) {
+// Start starts a new service and registers it to the service registry.
+func Start(
+	ctx context.Context,
+	host string,
+	port string,
+	reg registry.Registration,
+	registerHandlersFunc func(),
+) (context.Context, error) {
+
 	registerHandlersFunc()
-	ctx = startService(ctx, serviceName, host, port)
+	ctx = startService(ctx, reg.ServiceName, host, port)
+	err := registry.RegisterService(reg)
+	if err != nil {
+		return ctx, err
+	}
 
 	return ctx, nil
 }
 
-func startService(ctx context.Context, serviceName, host, port string) context.Context {
+func startService(
+	ctx context.Context,
+	serviceName registry.ServiceName,
+	host string,
+	port string,
+) context.Context {
+
 	ctx, cancel := context.WithCancel(ctx)
 
 	var srv http.Server
